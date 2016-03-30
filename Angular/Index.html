@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html ng-app="listaTelefonica">
+<head>
+	<meta charset="UTF-8">
+	<title>Lista Telefonica</title>
+	<link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.css" >
+	<script src="lib/angular/angular.js" ></script>
+	<script src="lib/angular/angular-messages.js"></script>
+	<script >
+
+		angular.module("listaTelefonica", ["ngMessages"]);
+		angular.module("listaTelefonica").controller("listaTelefonicaCtrl",function ($scope){
+
+				$scope.app = "Lista Telefonica";
+				$scope.contatos = [
+				{nome:"DROGADO", telefone:"56456456464", cor:"yellow"},
+				{nome:"CHINES", telefone:"45645645645", cor:"red"},
+				{nome:"DOG", telefone:"9999945649999", cor:"blue"}
+				];
+
+				$scope.operadoras= [
+				{ nome: "Vivo", codigo: "1", categoria: "Celular" },
+				{ nome: "Tim", codigo: "2" , categoria: "Celular"  },
+				{ nome: "Claro", codigo: "3" , categoria: "Celular" },
+				{ nome: "GVT", codigo: "4" , categoria: "Fixo" },
+				{ nome: "Embratel", codigo: "5" , categoria: "Fixo" }
+				];
+
+				$scope.adicionarContato = function (obj)
+				{
+
+					$scope.contatos.push(angular.copy(obj));
+					delete $scope.obj;
+					$scope.contatoForm.$setPristine();
+				};
+
+				$scope.apagarContato = function (contatos) 
+				{
+					 $scope.contatos = contatos.filter(function (contato) {
+						if (!contato.selecionado) return contato; 		
+					});
+
+				};
+
+				$scope.isdisableContatos = function (contatos){
+					return contatos.some(function (contato) 
+					{
+						return contato.selecionado;
+					});
+				}
+			});
+
+	</script>
+	<style>
+
+	.jumbotron
+	{
+		width: 700px;
+    	text-align: center;
+    	margin-top: 20px;
+    	margin-left: auto;
+    	margin-right: auto;
+    	padding: 60px;
+	}
+
+	.table
+	{
+		margin-top: 20px;
+	}
+
+	.form-control
+	{
+		margin-bottom: 5px;
+	}
+
+	.selecionado 
+	{
+		background-color: yellow;
+	}
+
+	.negrito 
+	{
+		font-weight: bold;
+	}
+
+	</style>
+
+</head>
+<body ng-controller="listaTelefonicaCtrl">
+	<div class="jumbotron">
+		<h3>{{app}}<h3>
+		<table ng-show="contatos.length > 0 " class="table table-striped">
+			<tr>
+				<th></th>
+				<th>Nome</th>
+				<th>Telefone</th>
+				<th>Operadora</th>
+				<th></th>
+			</tr>
+			<tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos">
+				<td><input type="checkbox" ng-model="contato.selecionado" /></td>
+				<td>{{contato.nome}}</td>
+				<td>{{contato.telefone}}</td>
+				<td>{{contato.operadora.nome}}</td>
+				<td><div ng-style="{'background-color': contato.cor}"  style="width: 20px; height: 20px;"></div></td>
+			</tr>
+		</table>
+		<hr/>
+		<form name="contatoForm"> 
+		<input type="text" class="form-control" ng-required="true"  placeholder="Nome" name="nome" ng-model="obj.nome" ng-minlength="10" ></input>
+		<input type="text" class="form-control" ng-required="true" ng-pattern="/^\d{4,5}-\d{4}$/" placeholder="Telefone" name="telefone" ng-model="obj.telefone"></input>
+
+		<div ng-messages="contatoForm.nome.$error" class="alert alert-danger">
+			<div ng-message="required">
+			 	Por favor, Preencha o Campo Nome!
+			</div>
+			<div ng-message="minlength">
+				O campo Nome deve ter no minimo 10 Caracteres! 
+			</div>
+		</div>
+
+		<div ng-messages> 
+
+		<div ng-show="contatoForm.telefone.$error.required && contatoForm.telefone.$dirty"  class="alert alert-danger">
+			Preencha o Telefone!
+		</div>	
+		<div ng-show="contatoForm.telefone.$error.pattern" class="alert alert-danger">
+			O campo telefone deve ter o formato DDDD-DDDD!
+		</div>
+		</div>
+		<select class="form-control" ng-model="obj.operadora" ng-options="operadora.nome for operadora in operadoras">
+		<option value="" >Selecione uma Operadora</option>
+		</select>
+		</form>
+		
+		<button class="btn btn-primary btn-block" ng-disabled="contatoForm.$invalid" ng-click="adicionarContato(obj)">Adicionar Contato</button>
+		<button class="btn btn-danger btn-block" ng-click="apagarContato(contatos)" ng-show="isdisableContatos(contatos)" >Apagar Contato</button>
+
+	</div>
+	<div ng-include="'footer.html'"></div>
+</body>
+</html>
